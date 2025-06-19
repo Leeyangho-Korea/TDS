@@ -3,23 +3,28 @@ using UnityEngine;
 
 public class Zombie : MonoBehaviour
 {
-    Rigidbody2D rigid;
+    private Rigidbody2D _rigid;
     public float moveSpeed = 1f;
     public float jumpPower = 5f;
     public float jumpCooldown = 1f; // 점프 쿨타임(초)
-    private float lastJumpTime = -999f; // 마지막 점프 시각
+    private float _lastJumpTime = -999f; // 마지막 점프 시각
+    [SerializeField] HPBar _hpBar;
+    [SerializeField] LayerMask _layerMask; // Zombie 레이어 마스크
 
-    [SerializeField] LayerMask layerMask; // Zombie 레이어 마스크
+    private int _maxHp = 30;
+    private int _hp;
 
     void Awake()
     {
-        rigid = GetComponent<Rigidbody2D>();
+        _rigid = GetComponent<Rigidbody2D>();
     }
 
     private void OnEnable()
     {
-        #region 레이어 설정
+        _hp = _maxHp;
+        _hpBar.Init(_maxHp);
 
+        #region 레이어 설정
         List<string> allLayers = new List<string> { DEF.Tag_Zombie1, DEF.Tag_Zombie2, DEF.Tag_Zombie3 };
 
         int random = Random.Range(0, allLayers.Count);
@@ -34,14 +39,14 @@ public class Zombie : MonoBehaviour
         // 제외할 레이어: 나머지 두 개
         allLayers.Remove(selectedLayer);
         int excludeMask = LayerMask.GetMask(allLayers.ToArray());
-        if (rigid != null)
+        if (_rigid != null)
         {
-            rigid.includeLayers = includeMask;   // 이 레이어만 포함
-            rigid.excludeLayers = excludeMask;   // 나머지는 제외
+            _rigid.includeLayers = includeMask;   // 이 레이어만 포함
+            _rigid.excludeLayers = excludeMask;   // 나머지는 제외
         }
 
         // Raycast도 같은 레이어만 감지하도록 동기화
-        layerMask = includeMask;
+        _layerMask = includeMask;
         #endregion
 
         #region 쿨타임 설정
@@ -50,35 +55,33 @@ public class Zombie : MonoBehaviour
     }
     void FixedUpdate()
     {
-        // 위에 좀비가 있다면
-        if (IsZombieAbove())
-        {
-            // 뒤로 이동
-            rigid.velocity = new Vector2(moveSpeed * 0.1f, rigid.velocity.y);
-        }
-        else
-        {
-            // 앞으로 이동
-            rigid.velocity = new Vector2(-moveSpeed, rigid.velocity.y);
-        }
+        // 좀비 있는지?
+        float targetX = IsZombieAbove() ? moveSpeed * 0.1f  : -moveSpeed;
+        float smooth = 10f; // 부드럽게 보간하는 정도
+
+        // x축만 보간, y축은 기존 값 유지
+        _rigid.velocity = new Vector2(
+            Mathf.Lerp(_rigid.velocity.x, targetX, Time.fixedDeltaTime * smooth),
+            _rigid.velocity.y
+        );
+
 
         float offset = 0.55f; // Collider 크기보다 조금 크게 설정
         Vector2 rayOrigin = (Vector2)transform.position + Vector2.left * offset;
-        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.left, 0.5f, layerMask);
+        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.left, 0.5f, _layerMask);
         if (hit.collider != null
             && hit.collider.gameObject != this.gameObject
-            && Time.time - lastJumpTime >= jumpCooldown
+            && Time.time - _lastJumpTime >= jumpCooldown
             && IsZombieAbove() == false) // 쿨다운 체크
         {
-            Debug.Log(transform.name + " : Jumping!");
-            rigid.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+            _rigid.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
             // 점프 직후 y속도 제한 (슈퍼점프 방지)
-            if (rigid.velocity.y > jumpPower)
+            if (_rigid.velocity.y > jumpPower)
             {
-                rigid.velocity = new Vector2(rigid.velocity.x, jumpPower);
+                _rigid.velocity = new Vector2(_rigid.velocity.x, jumpPower);
             }
 
-            lastJumpTime = Time.time; // 점프 시각 갱신
+            _lastJumpTime = Time.time; // 점프 시각 갱신
         }
     }
 
@@ -86,7 +89,7 @@ public class Zombie : MonoBehaviour
     {
         if (collision.gameObject.CompareTag(DEF.Tag_Truck))
         {
-            rigid.velocity = Vector2.zero;
+            _rigid.velocity = Vector2.zero;
         }
     }
 
@@ -108,5 +111,17 @@ public class Zombie : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void TakeDamage(int amount)
+    {
+        _hp -= amount;
+        if (_hpBar != null)
+            _hpBar.SetHP(_hp);
+
+        if (_hp <= 0)
+        {
+            InGame.Instance.ReleaseZombie(this);
+        }
     }
 }
