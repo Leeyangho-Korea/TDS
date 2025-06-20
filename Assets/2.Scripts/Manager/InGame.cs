@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.UI;
@@ -8,6 +9,8 @@ public class InGame : MonoBehaviour
     public Zombie zombiePrefab;
     public Transform spawnPoint;
     private ObjectPool<Zombie> _zombiePool;
+
+    private Coroutine _zombieSpawnRoutine;
     #endregion
 
     #region 총알 풀 관련 변수
@@ -20,7 +23,7 @@ public class InGame : MonoBehaviour
     [SerializeField] private Button _btnTransButton; // 무기 전환 버튼
     [SerializeField] Image[] _weaponImages; // 무기 이미지 UI 배열
     [SerializeField] Sprite[] _weaponSprites; // 무기 이미지 스프라이트 배열
-
+    [SerializeField] private Button _btnStart; // 게임 시작 버튼
 
     public static InGame Instance { get; private set; }
 
@@ -33,10 +36,12 @@ public class InGame : MonoBehaviour
 
     void Start()
     {
+        GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
         Init(); // 초기화 메소드 호출
+
+        _btnStart.onClick.AddListener(OnGameStart); // 게임 시작 버튼 클릭 시 애니메이션 재생
         _btnTransButton.onClick.AddListener(SetWeaponData); // 무기 전환 버튼 클릭 시 SetWeaponData 호출
     }
-
 
     private void Init()
     {
@@ -69,6 +74,21 @@ public class InGame : MonoBehaviour
         }
     }
 
+    private void HandleGameStateChanged(GameState state)
+    {
+        if (_zombieSpawnRoutine != null)
+        {
+            StopCoroutine(_zombieSpawnRoutine);
+            _zombieSpawnRoutine = null;
+        }
+
+        if (state == GameState.Playing)
+        {
+            _zombieSpawnRoutine = StartCoroutine(ZombieSpawnRoutine());
+        }
+    }
+
+
     #region 좀비 풀 관련 메소드
     public void SpawnZombie()
     {
@@ -79,6 +99,15 @@ public class InGame : MonoBehaviour
     public void ReleaseZombie(Zombie zombie)
     {
         _zombiePool.Return(zombie);
+    }
+
+    private IEnumerator ZombieSpawnRoutine()
+    {
+        while (GameManager.Instance.State == GameState.Playing)
+        {
+            SpawnZombie();
+            yield return new WaitForSeconds(3f); // 원하는 간격
+        }
     }
 
     #endregion
@@ -114,4 +143,16 @@ public class InGame : MonoBehaviour
     }
 
     #endregion
+
+    public void OnGameStart()
+    {
+        _btnStart.gameObject.SetActive(false); // 게임 시작 버튼 숨김   
+        GameManager.Instance.SetState(GameState.Playing);
+    }
+
+    public void OnGameOver()
+    {
+        GameManager.Instance.SetState(GameState.GameOver);
+        // 게임 오버 UI 등 처리
+    }
 }

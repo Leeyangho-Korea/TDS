@@ -15,6 +15,10 @@ public class PlayerAttack : MonoBehaviour
     }
     void Update()
     {
+        if(GameManager.Instance.State != GameState.Playing)
+            return;
+
+
         if ((Input.GetMouseButtonDown(0) || Input.GetMouseButton(0)) && Time.time - _lastAttackTime >= _currentWeapon.attackCooldown)
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
