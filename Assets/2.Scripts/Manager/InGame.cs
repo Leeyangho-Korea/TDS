@@ -160,14 +160,14 @@ public class InGame : MonoBehaviour
     {
         int i = GameManager.Instance.WeaponType == WeaponType.ShotGun ? 1 : 0;
         hero.SetWeapon(i, () => {
-            // 여기서 총 이미지 교체, UI 업데이트 등 원하는 동작 실행
+            // 무기 설정 후 UI 업데이트
             UpdateWeaponUI();
         });
     }
 
     private void UpdateWeaponUI()
     {
-        // 예시: 총 이미지 교체 코드
+        // 총 이미지 교체
         _weaponImages[0].sprite = _weaponSprites[GameManager.Instance.WeaponType == WeaponType.ShotGun ? 0 : 1];
         _weaponImages[1].sprite = _weaponSprites[GameManager.Instance.WeaponType == WeaponType.ShotGun ? 1 : 0];
     }

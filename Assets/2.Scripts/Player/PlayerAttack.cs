@@ -62,14 +62,14 @@ public class PlayerAttack : MonoBehaviour
         // 1. GameManager 인스턴스 체크
         if (GameManager.Instance == null)
         {
-            Debug.LogError("GameManager.Instance가 null입니다.");
+           // Debug.LogError("GameManager.Instance가 null입니다.");
             return;
         }
 
         // 2. i가 Enum 범위 내에 있는지 체크
         if (!Enum.IsDefined(typeof(WeaponType), i))
         {
-            Debug.LogError($"WeaponType에 {i} 값이 없습니다.");
+            //Debug.LogError($"WeaponType에 {i} 값이 없습니다.");
             return;
         }
 
@@ -79,7 +79,7 @@ public class PlayerAttack : MonoBehaviour
         _currentWeapon = weaponDB.WeaponDataDict[weaponType];
         GameManager.Instance.currentWeapon = weaponDB.WeaponDataDict[weaponType];
         GameManager.Instance.WeaponType = weaponType;
-        Debug.Log("무기 교체 성공");
+       // Debug.Log("무기 교체 성공");
 
         // 5. 성공 콜백 실행
         onSuccess?.Invoke();

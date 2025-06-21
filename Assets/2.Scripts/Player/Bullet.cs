@@ -63,7 +63,7 @@ public class Bullet : MonoBehaviour
         }
 
 
-        if (collision.CompareTag("Ground") || collision.CompareTag("DeadLine"))
+        if (collision.CompareTag(DEF.TAG_Ground) || collision.CompareTag(DEF.TAG_DeadLine))
         {
             _hasCollided = true; // 충돌 플래그 설정
             _returnToPool?.Invoke(this);
