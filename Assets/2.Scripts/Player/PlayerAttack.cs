@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerAttack : MonoBehaviour
 {
@@ -18,6 +19,10 @@ public class PlayerAttack : MonoBehaviour
         if(GameManager.Instance.State != GameState.Playing)
             return;
 
+
+        // UI 위에서 클릭한 경우 발사 금지
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
 
         if ((Input.GetMouseButtonDown(0) || Input.GetMouseButton(0)) && Time.time - _lastAttackTime >= _currentWeapon.attackCooldown)
         {

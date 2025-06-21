@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Riple
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Riple
-  attackCooldown: 0.5
+  attackCooldown: 0.2
   bulletCount: 1
   spreadAngle: 0
   bulletSpeed: 25

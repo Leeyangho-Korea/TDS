@@ -10,7 +10,7 @@ public class HPBar : MonoBehaviour
     public float fadeDuration = 1.0f;  // 페이드 아웃 시간
 
     private Tween _fadeTween;
-    private float _maxHp;
+    private float _maxHp = 30;
     private float _currentHp;
 
     public void Init(float maxHp)
@@ -23,6 +23,7 @@ public class HPBar : MonoBehaviour
 
     public void SetHP(float hp)
     {
+        hp = hp < 0 ? 0 : hp; // 음수 방지
         _currentHp = Mathf.Clamp(hp, 0, _maxHp);
         _fillImage.fillAmount = _currentHp / _maxHp;
         ShowAndFade();

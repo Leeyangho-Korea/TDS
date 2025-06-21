@@ -9,6 +9,7 @@ TagManager:
   - Truck
   - Ground
   - DeadLine
+  - ZombieCommand
   layers:
   - Default
   - TransparentFX
@@ -20,8 +21,8 @@ TagManager:
   - Zombie1
   - Zombie2
   - Zombie3
-  - 
-  - 
+  - DeadLine
+  - ZombieCommand
   - 
   - 
   - 

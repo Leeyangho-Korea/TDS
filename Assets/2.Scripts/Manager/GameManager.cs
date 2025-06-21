@@ -6,7 +6,7 @@ public enum GameState
 {
     Ready,      // 시작 전(애니메이션 등)
     Playing,    // 게임 진행 중(좀비 자동 생성)
-    GameOver    // 게임 종료
+    Win,       // 승리
 }
 public class GameManager : MonoBehaviour
 {
@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     public WeaponType WeaponType; // 현재 무기 타입
     public WeaponData currentWeapon; // 현재 무기 데이터
+
     [SerializeField] GameState _State;
     public GameState State
     {

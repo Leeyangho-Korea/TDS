@@ -11,6 +11,7 @@ public class Zombie : MonoBehaviour
     [SerializeField] HPBar _hpBar;
     [SerializeField] LayerMask _layerMask; // Zombie 레이어 마스크
 
+    private bool isContactWithTruck = false; // 트럭과 접촉 여부
     private int _maxHp = 30;
     private int _hp;
 
@@ -23,6 +24,7 @@ public class Zombie : MonoBehaviour
     {
         _hp = _maxHp;
         _hpBar.Init(_maxHp);
+        isContactWithTruck = false;
 
         #region 레이어 설정
         List<string> allLayers = new List<string> { DEF.Tag_Zombie1, DEF.Tag_Zombie2, DEF.Tag_Zombie3 };
@@ -53,6 +55,15 @@ public class Zombie : MonoBehaviour
         jumpCooldown = Random.Range(1f, 4f); // 1초에서 4초 사이의 랜덤 쿨타임
         #endregion
     }
+
+    private void OnDisable()
+    {
+        if (isContactWithTruck)
+       {
+            isContactWithTruck = false;
+        }
+    }
+
     void FixedUpdate()
     {
         // 좀비 있는지?
@@ -90,6 +101,17 @@ public class Zombie : MonoBehaviour
         if (collision.gameObject.CompareTag(DEF.Tag_Truck))
         {
             _rigid.velocity = Vector2.zero;
+            Truck.Instance.zombieContactCount += 1; // 트럭과 접촉 시 카운트 증가
+            isContactWithTruck = true;
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(DEF.Tag_Truck))
+        {
+            isContactWithTruck = false;
+            Truck.Instance.zombieContactCount -= 1; // 트럭과 접촉 해제 시 카운트 감소
         }
     }
 
@@ -121,6 +143,7 @@ public class Zombie : MonoBehaviour
 
         if (_hp <= 0)
         {
+            InGame.Instance.IncrementKillCount();
             InGame.Instance.ReleaseZombie(this);
         }
     }

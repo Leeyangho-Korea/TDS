@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ShotGun
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: ShotGun
-  attackCooldown: 1.5
+  attackCooldown: 0.7
   bulletCount: 3
-  spreadAngle: 10
+  spreadAngle: 15
   bulletSpeed: 20
   bulletRange: 10
   bulletDamage: 15

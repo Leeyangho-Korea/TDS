@@ -22,7 +22,7 @@ public enum WeaponType
 }
 
 
-// 무기 데이터를 관리하는 MonoBehaviour
+// 무기 데이터 관리
 public class WeaponDataBase : MonoBehaviour
 {
     public WeaponData shotGunData;
